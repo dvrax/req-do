@@ -35,6 +35,7 @@ fn build_ui(application: &gtk::Application) {
         .get_object("submit_request")
         .expect("Could not get submit button");
 
+    submit_button.grab_default();
     submit_button.connect_clicked(move |_| {
         let entry_text = request_entry
             .get_text()
