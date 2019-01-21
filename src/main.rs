@@ -1,10 +1,11 @@
 extern crate gio;
 extern crate gtk;
-extern crate reqwest;
 
 use gio::prelude::*;
 use gtk::prelude::*;
 use gtk::Builder;
+
+use std::process::Command;
 
 fn build_ui(application: &gtk::Application) {
     let glade_src = include_str!("interface.glade");
@@ -40,17 +41,17 @@ fn build_ui(application: &gtk::Application) {
         let entry_text = request_entry
             .get_text()
             .expect("Failed to get text from entry");
-        if let Ok(mut request_result) = reqwest::get(&entry_text) {
-            if let Ok(request_result_text) = request_result.text() {
+        if let Ok(curl_output) = Command::new("curl").arg("-L").arg(&entry_text).output() {
+            if let Ok(curl_stdout) = std::str::from_utf8(&curl_output.stdout) {
                 result_text
                     .get_buffer()
                     .expect("Couldn't get output text buffer!")
-                    .set_text(&request_result_text);
+                    .set_text(curl_stdout);
             } else {
                 result_text
                     .get_buffer()
                     .expect("Couldn't get output text buffer!")
-                    .set_text("Failed to get text of response");
+                    .set_text("Failed to parse curl output");
             }
         } else {
             result_text
