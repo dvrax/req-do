@@ -42,17 +42,11 @@ fn build_ui(application: &gtk::Application) {
             .get_text()
             .expect("Failed to get text from entry");
         if let Ok(curl_output) = Command::new("curl").arg("-L").arg(&entry_text).output() {
-            if let Ok(curl_stdout) = std::str::from_utf8(&curl_output.stdout) {
-                result_text
-                    .get_buffer()
-                    .expect("Couldn't get output text buffer!")
-                    .set_text(curl_stdout);
-            } else {
-                result_text
-                    .get_buffer()
-                    .expect("Couldn't get output text buffer!")
-                    .set_text("Failed to parse curl output");
-            }
+            let curl_stdout = String::from_utf8_lossy(&curl_output.stdout);
+            result_text
+                .get_buffer()
+                .expect("Couldn't get output text buffer!")
+                .set_text(&curl_stdout);
         } else {
             result_text
                 .get_buffer()
